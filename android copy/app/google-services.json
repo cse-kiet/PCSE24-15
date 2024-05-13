@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "955290131135",
+    "project_id": "makemyhome-e5dbc",
+    "storage_bucket": "makemyhome-e5dbc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955290131135:android:fadf8e59b84a9d8368440a",
+        "android_client_info": {
+          "package_name": "com.example.makeyourhome"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955290131135-8mq04oc1r2962duerg0u6mbjehgaacqn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzSi2dlDDA2y0xQmvfPsKbbh6FxXGCKKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955290131135-8mq04oc1r2962duerg0u6mbjehgaacqn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
