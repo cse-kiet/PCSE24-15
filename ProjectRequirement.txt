@@ -1,0 +1,193 @@
+Please Refer the following website for detailed requirement information - https://docs.flutter.dev/get-started/install/windows/desktop
+
+Requirement as per flutter official website is mentioned below
+
+Hardware requirements
+#
+Your Windows Flutter development environment must meet the following minimal hardware requirements.
+
+Requirement	Minimum	Recommended
+x86_64 CPU Cores	4	8
+Memory in GB	8	16
+Display resolution in pixels	WXGA (1366 x 768)	FHD (1920 x 1080)
+Free disk space in GB	4.0	52.0
+Software requirements
+#
+To write and compile Flutter code for desktop, you must have the following version of Windows and the listed software packages.
+
+Operating system
+#
+Flutter supports 64-bit version of Microsoft Windows 10 or later. These versions of Windows should include the required Windows PowerShell 5 or later.
+
+Development tools
+#
+Download and install the Windows version of the following packages:
+
+Git for Windows 2.27 or later to manage source code.
+
+Visual Studio 2022 to debug and compile native C++ Windows code. Make sure to install the Desktop development with C++ workload. This enables building Windows app including all of its default components. Visual Studio is an IDE separate from Visual Studio Code.
+
+The developers of the preceding software provide support for those products. To troubleshoot installation issues, consult that product's documentation.
+
+When you run the current version of flutter doctor, it might list a different version of one of these packages. If it does, install the version it recommends.
+
+Configure a text editor or IDE
+#
+You can build apps with Flutter using any text editor or integrated development environment (IDE) combined with Flutter's command-line tools.
+
+Using an IDE with a Flutter extension or plugin provides code completion, syntax highlighting, widget editing assists, debugging, and other features.
+
+Popular options include:
+
+Visual Studio Code 1.77 or later with the Flutter extension for VS Code.
+Android Studio 2023.2.1 (Iguana) or later with the Flutter plugin for IntelliJ.
+IntelliJ IDEA 2023.2 or later with the Flutter plugin for IntelliJ.
+Recommended
+The Flutter team recommends installing Visual Studio Code 1.77 or later and the Flutter extension for VS Code. This combination simplifies installing the Flutter SDK.
+
+Install the Flutter SDK
+#
+To install the Flutter SDK, you can use the VS Code Flutter extension or download and install the Flutter bundle yourself.
+
+Use VS Code to install
+Download and install
+Use VS Code to install Flutter
+#
+To install Flutter using these instructions, verify that you have installed Visual Studio Code 1.77 or later and the Flutter extension for VS Code.
+
+Prompt VS Code to install Flutter
+#
+Launch VS Code.
+
+To open the Command Palette, press Control + Shift + P.
+
+In the Command Palette, type flutter.
+
+Select Flutter: New Project.
+
+VS Code prompts you to locate the Flutter SDK on your computer.
+
+If you have the Flutter SDK installed, click Locate SDK.
+
+If you do not have the Flutter SDK installed, click Download SDK.
+
+This option sends you the Flutter install page if you have not installed Git for Windows as directed in the development tools prerequisites.
+
+When prompted Which Flutter template?, ignore it. Press Esc. You can create a test project after checking your development setup.
+
+Download the Flutter SDK
+#
+When the Select Folder for Flutter SDK dialog displays, choose where you want to install Flutter.
+
+VS Code places you in your user profile to start. Choose a different location.
+
+Consider %USERPROFILE% or C:\dev.
+
+Warning
+Don't install Flutter to a directory or path that meets one or both of the following conditions:
+
+The path contains special characters or spaces.
+The path requires elevated privileges.
+As an example, C:\Program Files fails both conditions.
+
+Click Clone Flutter.
+
+While downloading Flutter, VS Code displays this pop-up notification:
+
+Downloading the Flutter SDK. This may take a few minutes.
+content_copy
+This download takes a few minutes. If you suspect that the download has hung, click Cancel then start the installation again.
+
+Once it finishes downloading Flutter, the Output panel displays.
+
+Checking Dart SDK version...
+Downloading Dart SDK from the Flutter engine ...
+Expanding downloaded archive...
+content_copy
+When successful, VS Code displays this pop-up notification:
+
+Initializing the Flutter SDK. This may take a few minutes.
+content_copy
+While initializing, the Output panel displays the following:
+
+Building flutter tool...
+Running pub upgrade...
+Resolving dependencies...
+Got dependencies.
+Downloading Material fonts...
+Downloading Gradle Wrapper...
+Downloading package sky_engine...
+Downloading flutter_patched_sdk tools...
+Downloading flutter_patched_sdk_product tools...
+Downloading windows-x64 tools...
+Downloading windows-x64/font-subset tools...
+content_copy
+This process also runs flutter doctor -v. At this point in the procedure, ignore this output. Flutter Doctor might show errors that don't apply to this quick start.
+
+When the Flutter install succeeds, VS Code displays this pop-up notification:
+
+Do you want to add the Flutter SDK to PATH so it's accessible
+in external terminals?
+content_copy
+Click Add SDK to PATH.
+
+When successful, a notification displays:
+
+The Flutter SDK was added to your PATH
+content_copy
+VS Code may display a Google Analytics notice.
+
+If you agree, click OK.
+
+To enable flutter in all PowerShell windows:
+
+Close, then reopen all PowerShell windows.
+Restart VS Code.
+Check your development setup
+#
+help
+Help
+
+Run Flutter doctor
+#
+The flutter doctor command validates that all components of a complete Flutter development environment for Windows.
+
+Open PowerShell.
+
+To verify your installation of all the components, run the following command.
+
+PS C:> flutter doctor
+content_copy
+As you chose to develop for desktop, you do not need all components. If you followed this guide, the result of your command should resemble:
+
+Running flutter doctor...
+Doctor summary (to see all details, run flutter doctor -v):
+[✓] Flutter (Channel stable, 3.22.1, on Microsoft Windows 11 [Version 10.0.22621.3155], locale en)
+[✓] Windows version (Installed version of Windows is version 10 or higher)
+[!] Android toolchain - develop for Android devices
+[!] Chrome - develop for the web
+[✓] Visual Studio - develop Windows apps (version 2022)
+[!] Android Studio (not installed)
+[✓] VS Code (version 1.89)
+[✓] Connected device (1 available)
+[✓] Network resources
+
+
+! Doctor found issues in 3 categories.
+content_copy
+Troubleshoot Flutter doctor issues
+#
+When the flutter doctor command returns an error, it could be for Flutter, VS Code, Visual Studio, the connected device, or network resources.
+
+If the flutter doctor command returns an error for any of these components, run it again with the verbose flag.
+
+PS C:> flutter doctor -v
+content_copy
+Check the output for other software you might need to install or further tasks to perform.
+
+If you change the configuration of your Flutter SDK or its related components, run flutter doctor again to verify the installation.
+
+Start developing Windows desktop apps with Flutter
+#
+Congratulations! Now that you have installed all prerequisites and the Flutter SDK, you should be able to start developing Flutter apps for Windows desktop.
+

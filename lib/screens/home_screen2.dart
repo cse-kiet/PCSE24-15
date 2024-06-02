@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,8 +7,19 @@ import 'package:makeyourhome/provider/bottom_provider.dart';
 import 'package:makeyourhome/screens/cost_calculator.dart';
 import 'package:makeyourhome/tools/color.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 int _index = 0;
+List<dynamic> responseData = [];
+List<FlSpot> flSpot = [];
+Future? _future;
+bool isProfit = true;
+int dayProfit = 0;
+int weekProfit = 0;
+int monthProfit = 0;
+int yearProfit = 0;
+int futureProfit = 0;
+double percent = 0;
 
 class HomeScreen2 extends StatefulWidget {
   const HomeScreen2({super.key});
@@ -18,7 +30,6 @@ class HomeScreen2 extends StatefulWidget {
 
 class _HomeScreen2State extends State<HomeScreen2> {
   Future<void> fetchProductData() async {
-    // print("krsna");
     final response = await http.post(
       Uri.parse('https://dev.yojn.dev/finetune/fetch_product_data'),
       headers: <String, String>{
@@ -36,17 +47,47 @@ class _HomeScreen2State extends State<HomeScreen2> {
     );
     print("${response.body}");
     if (response.statusCode == 200) {
-      // print("radhe");
-      List<dynamic> responseData = jsonDecode(response.body)['data'];
-      responseData.map((data) => print(data));
+      responseData = jsonDecode(response.body)['data'];
+      int temp = 0;
+      responseData.forEach((data) => flSpot.add(FlSpot(temp++ + 0, data[3])));
     } else {
       throw Exception('Failed to load product data');
     }
+    calCulateProfit();
+    setState(() {});
+  }
+
+  void calCulateProfit() {
+    dayProfit = flSpot
+            .elementAt(int.parse(DateFormat('D').format(DateTime.now())))
+            .y
+            .round() -
+        flSpot
+            .elementAt(int.parse(DateFormat('D').format(DateTime.now())) - 1)
+            .y
+            .round();
+    percent = (dayProfit / 100);
+    print(percent);
+    isProfit = flSpot
+                    .elementAt(
+                        int.parse(DateFormat('D').format(DateTime.now())))
+                    .y
+                    .round() -
+                flSpot
+                    .elementAt(
+                        int.parse(DateFormat('D').format(DateTime.now())) - 1)
+                    .y
+                    .round() >
+            0
+        ? true
+        : false;
+    setState(() {});
   }
 
   @override
   void initState() {
     fetchProductData();
+    _future = fetchProductData();
     // TODO: implement initState
     super.initState();
   }
@@ -55,418 +96,494 @@ class _HomeScreen2State extends State<HomeScreen2> {
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
-    return Consumer<BottomProvider>(
-      builder: (context, value, child) {
-        final bno = Provider.of<BottomProvider>(context, listen: false);
-        return Scaffold(
-          resizeToAvoidBottomInset: true,
-          backgroundColor: Colors.white,
-          bottomNavigationBar: bottomNavigation(),
-          appBar: AppBar(
-            toolbarHeight: MediaQuery.of(context).size.height * 0.066,
-            iconTheme: IconThemeData(color: mycolor['secondaryColor']),
-            backgroundColor: mycolor['primaryColor'],
-            elevation: 0.6,
-            titleSpacing: 0,
-            title: Row(
-              children: [
-                Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.0,
-                        left: MediaQuery.of(context).size.width * 0.026,
-                      ),
-                      child: Text(
-                        "Material Metric",
-                        style: GoogleFonts.roboto(
-                            fontSize:
-                                MediaQuery.of(context).size.height * 0.024,
-                            //  fontWeight: FontWeight.bold,
-                            color: mycolor['secondaryColor']),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.004,
-                        left: MediaQuery.of(context).size.width * 0.06,
-                      ),
-                      child: Text(
-                        '" AI driven building material price predictor app "',
-                        style: GoogleFonts.roboto(
-                            fontSize:
-                                MediaQuery.of(context).size.height * 0.013,
-                            //  fontWeight: FontWeight.bold,
-                            color: mycolor['secondaryColor']),
-                      ),
-                    ),
-                    // IconButton(onPressed: () {}, icon: Icon(Icons.location_on))
-                  ],
-                ),
-                // Padding(
-                //   padding: EdgeInsets.only(
-                //     left: MediaQuery.of(context).size.width * 0.084,
-                //   ),
-                //   child: Icon(Icons.search),
-                // )
-              ],
-            ),
-          ),
-          drawer: Drawer(
-            width: width * 0.8,
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.06,
-                      left: MediaQuery.of(context).size.width * 0.06,
-                    ),
-                    child: Text(
-                      "Material Metric",
-                      style: GoogleFonts.roboto(
-                          fontSize: MediaQuery.of(context).size.height * 0.026,
-                          //  fontWeight: FontWeight.bold,
-                          color: mycolor['secondaryColor']),
+    return FutureBuilder(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Consumer<BottomProvider>(
+              builder: (context, value, child) {
+                final bno = Provider.of<BottomProvider>(context, listen: false);
+                return Scaffold(
+                  resizeToAvoidBottomInset: true,
+                  backgroundColor: Colors.white,
+                  bottomNavigationBar: bottomNavigation(),
+                  appBar: AppBar(
+                    toolbarHeight: MediaQuery.of(context).size.height * 0.066,
+                    iconTheme: IconThemeData(color: mycolor['secondaryColor']),
+                    backgroundColor: mycolor['primaryColor'],
+                    elevation: 0.6,
+                    titleSpacing: 0,
+                    title: Row(
+                      children: [
+                        Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: MediaQuery.of(context).size.height * 0.0,
+                                left: MediaQuery.of(context).size.width * 0.026,
+                              ),
+                              child: Text(
+                                "Make Your Home",
+                                style: GoogleFonts.roboto(
+                                    fontSize:
+                                        MediaQuery.of(context).size.height *
+                                            0.024,
+                                    //  fontWeight: FontWeight.bold,
+                                    color: mycolor['secondaryColor']),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: MediaQuery.of(context).size.height * 0.004,
+                                left: MediaQuery.of(context).size.width * 0.06,
+                              ),
+                              child: Text(
+                                '" AI driven building material price predictor app "',
+                                style: GoogleFonts.roboto(
+                                    fontSize:
+                                        MediaQuery.of(context).size.height *
+                                            0.013,
+                                    //  fontWeight: FontWeight.bold,
+                                    color: mycolor['secondaryColor']),
+                              ),
+                            ),
+                            // IconButton(onPressed: () {}, icon: Icon(Icons.location_on))
+                          ],
+                        ),
+                        // Padding(
+                        //   padding: EdgeInsets.only(
+                        //     left: MediaQuery.of(context).size.width * 0.084,
+                        //   ),
+                        //   child: Icon(Icons.search),
+                        // )
+                      ],
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.01,
-                      bottom: MediaQuery.of(context).size.height * 0.04,
-                      left: MediaQuery.of(context).size.width * 0.07,
-                    ),
-                    child: Text(
-                      ' AI driven building material price predictor app ',
-                      style: GoogleFonts.roboto(
-                          fontSize: MediaQuery.of(context).size.height * 0.014,
-                          //  fontWeight: FontWeight.bold,
-                          color: mycolor['secondaryColor']),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.7,
-                width: MediaQuery.of(context).size.width * 1,
-                child: ListView(
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        Icons.home,
-                        color: Colors.black,
-                        size: MediaQuery.of(context).size.height * 0.03,
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios_sharp,
-                        color: Colors.black,
-                        size: MediaQuery.of(context).size.height * 0.024,
-                      ),
-                      title: Text(
-                        "Home",
-                        style: GoogleFonts.poppins(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w400,
-                            fontSize:
-                                MediaQuery.of(context).size.height * 0.018),
-                      ),
-                      onTap: () {},
-                    ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.01,
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.group,
-                        color: Colors.black,
-                        size: MediaQuery.of(context).size.height * 0.03,
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios_sharp,
-                        color: Colors.black,
-                        size: MediaQuery.of(context).size.height * 0.024,
-                      ),
-                      title: Text(
-                        "About Us",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w400,
-                            fontSize:
-                                MediaQuery.of(context).size.height * 0.018),
-                      ),
-                      onTap: () {},
-                    ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.01,
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.question_mark_rounded,
-                        color: Colors.black,
-                        size: MediaQuery.of(context).size.height * 0.03,
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios_sharp,
-                        color: Colors.black,
-                        size: MediaQuery.of(context).size.height * 0.024,
-                      ),
-                      title: Text(
-                        "How it works",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w400,
-                            fontSize:
-                                MediaQuery.of(context).size.height * 0.018),
-                      ),
-                      onTap: () {},
-                    ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.01,
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.phone,
-                        color: Colors.black,
-                        size: MediaQuery.of(context).size.height * 0.03,
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios_sharp,
-                        color: Colors.black,
-                        size: MediaQuery.of(context).size.height * 0.024,
-                      ),
-                      title: Text(
-                        "Contact Us",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w400,
-                            fontSize:
-                                MediaQuery.of(context).size.height * 0.018),
-                      ),
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height * 0.114,
-                  left: MediaQuery.of(context).size.width * 0.24,
-                ),
-                child: Text(
-                  "Version 1.0.0",
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w400,
-                      fontSize: MediaQuery.of(context).size.height * 0.018),
-                ),
-              ),
-            ]),
-          ),
-          body: bno.bottomNo == 0
-              ? SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SafeArea(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                          left: width * 0.04, right: width * 0.02),
-                      child: Column(
+                  drawer: Drawer(
+                    width: width * 0.7,
+                    child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Padding(
-                                padding: EdgeInsets.only(top: height * 0.04),
-                                child: CategoryCard(
-                                  height: height,
-                                  width: width,
-                                  name: "Cement",
-                                  cp: "350",
-                                  isProfit: true,
-                                  percent: "+10 (0.20 %)",
+                                padding: EdgeInsets.only(
+                                  top:
+                                      MediaQuery.of(context).size.height * 0.06,
+                                  left:
+                                      MediaQuery.of(context).size.width * 0.02,
+                                ),
+                                child: Text(
+                                  "Make Your Home",
+                                  style: GoogleFonts.roboto(
+                                      fontSize:
+                                          MediaQuery.of(context).size.height *
+                                              0.026,
+                                      //  fontWeight: FontWeight.bold,
+                                      color: mycolor['secondaryColor']),
                                 ),
                               ),
                               Padding(
                                 padding: EdgeInsets.only(
-                                    top: height * 0.04, left: width * 0.06),
-                                child: CategoryCard(
-                                  height: height,
-                                  width: width,
-                                  name: "TMT Steel",
-                                  cp: "480",
-                                  isProfit: true,
-                                  percent: "+30 (0.40 %)",
+                                  top:
+                                      MediaQuery.of(context).size.height * 0.01,
+                                  bottom:
+                                      MediaQuery.of(context).size.height * 0.04,
+                                  left:
+                                      MediaQuery.of(context).size.width * 0.03,
                                 ),
-                              )
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(top: height * 0.026),
-                                child: CategoryCard(
-                                  height: height,
-                                  width: width,
-                                  name: "Granules",
-                                  cp: "380",
-                                  isProfit: false,
-                                  percent: "-18 (0.20 %)",
+                                child: Text(
+                                  '" AI driven building material price predictor app "',
+                                  style: GoogleFonts.roboto(
+                                      fontSize:
+                                          MediaQuery.of(context).size.height *
+                                              0.014,
+                                      //  fontWeight: FontWeight.bold,
+                                      color: mycolor['secondaryColor']),
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    top: height * 0.026, left: width * 0.06),
-                                child: CategoryCard(
-                                  height: height,
-                                  width: width,
-                                  name: "Bricks",
-                                  cp: "220",
-                                  isProfit: true,
-                                  percent: "+12 (0.16 %)",
-                                ),
-                              )
                             ],
                           ),
-                          // SizedBox(
-                          //   height: height * 0.05,
-                          // ),
-                          // SingleChildScrollView(
-                          //   scrollDirection: Axis.horizontal,
-                          //   child: Row(
-                          //     children: [
-                          //       InkWell(
-                          //         onTap: () {
-                          //           setState(() {
-                          //             _index = 0;
-                          //           });
-                          //         },
-                          //         child: CategoryType(
-                          //           height: height,
-                          //           width: width,
-                          //           name: "Cement",
-                          //           number: 0,
-                          //         ),
-                          //       ),
-                          //       InkWell(
-                          //         onTap: () {
-                          //           setState(() {
-                          //             _index = 1;
-                          //           });
-                          //         },
-                          //         child: CategoryType(
-                          //           height: height,
-                          //           width: width,
-                          //           name: "TMT Steel",
-                          //           number: 1,
-                          //         ),
-                          //       ),
-                          //       InkWell(
-                          //         onTap: () {
-                          //           setState(() {
-                          //             _index = 2;
-                          //           });
-                          //         },
-                          //         child: CategoryType(
-                          //           height: height,
-                          //           width: width,
-                          //           name: "Granules",
-                          //           number: 2,
-                          //         ),
-                          //       ),
-                          //       InkWell(
-                          //         onTap: () {
-                          //           setState(() {
-                          //             _index = 3;
-                          //           });
-                          //         },
-                          //         child: CategoryType(
-                          //           height: height,
-                          //           width: width,
-                          //           name: "Bricks",
-                          //           number: 3,
-                          //         ),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-                          Padding(
-                            padding: EdgeInsets.only(top: height * 0.044),
-                            child: Text(
-                              "Top Companies",
-                              style: GoogleFonts.roboto(
-                                  fontSize:
-                                      MediaQuery.of(context).size.height * 0.02,
-                                  //  fontWeight: FontWeight.bold,
-                                  color: mycolor['secondaryColor']),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: ListView(
+                              children: [
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.home,
+                                    color: Colors.black,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.03,
+                                  ),
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios_sharp,
+                                    color: Colors.black,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.024,
+                                  ),
+                                  title: Text(
+                                    "Home",
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize:
+                                            MediaQuery.of(context).size.height *
+                                                0.018),
+                                  ),
+                                  onTap: () {
+                                    bno.setBNo(0);
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.01,
+                                ),
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.group,
+                                    color: Colors.black,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.03,
+                                  ),
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios_sharp,
+                                    color: Colors.black,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.024,
+                                  ),
+                                  title: Text(
+                                    "About Us",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize:
+                                            MediaQuery.of(context).size.height *
+                                                0.018),
+                                  ),
+                                  onTap: () {
+                                    Navigator.popAndPushNamed(
+                                        context, '/about');
+                                  },
+                                ),
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.01,
+                                ),
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.question_mark_rounded,
+                                    color: Colors.black,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.03,
+                                  ),
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios_sharp,
+                                    color: Colors.black,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.024,
+                                  ),
+                                  title: Text(
+                                    "How it works",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize:
+                                            MediaQuery.of(context).size.height *
+                                                0.018),
+                                  ),
+                                  onTap: () {
+                                    Navigator.popAndPushNamed(
+                                        context, '/workFlow');
+                                  },
+                                ),
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.01,
+                                ),
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.phone,
+                                    color: Colors.black,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.03,
+                                  ),
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios_sharp,
+                                    color: Colors.black,
+                                    size: MediaQuery.of(context).size.height *
+                                        0.024,
+                                  ),
+                                  title: Text(
+                                    "Contact Us",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w400,
+                                        fontSize:
+                                            MediaQuery.of(context).size.height *
+                                                0.018),
+                                  ),
+                                  onTap: () {
+                                    Navigator.popAndPushNamed(
+                                        context, '/contact');
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(
-                            height: height * 0.05,
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: MediaQuery.of(context).size.height * 0.114,
+                              left: MediaQuery.of(context).size.width * 0.2,
+                            ),
+                            child: Text(
+                              "Version 1.0.0",
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: MediaQuery.of(context).size.height *
+                                      0.018),
+                            ),
                           ),
-                          _index == 0
-                              ? CementCompany(height: height, width: width)
-                              : _index == 1
-                                  ? TMTCompany(height: height, width: width)
-                                  : BrickCompany(height: height, width: width),
-                          SizedBox(
-                            height: height * 0.045,
-                          ),
-                          // Padding(
-                          //   padding: EdgeInsets.only(top: height * 0.02),
-                          //   child: Text(
-                          //     "Tools",
-                          //     style: GoogleFonts.roboto(
-                          //         fontSize: MediaQuery.of(context).size.height * 0.019,
-                          //         //  fontWeight: FontWeight.bold,
-                          //         color: mycolor['secondaryColor']),
-                          //   ),
-                          // ),
-                          // Padding(
-                          //   padding: EdgeInsets.only(top: height * 0.02, left: width * 0.0),
-                          //   child: Container(
-                          //     decoration: BoxDecoration(
-                          //         color: Color(0xffF8F8F8),
-                          //         border: Border.all(color: Color(0xffE9E9EB), width: 1),
-                          //         borderRadius: BorderRadius.all(Radius.circular(10))),
-                          //     child: Column(
-                          //       children: [
-                          //         Padding(
-                          //           padding: EdgeInsets.only(
-                          //               top: height * 0.025,
-                          //               right: width * 0.4,
-                          //               left: width * 0.4),
-                          //           child: Icon(
-                          //             Icons.house,
-                          //             size: height * 0.04,
-                          //             color: Color(0xff00B499),
-                          //           ),
-                          //         ),
-                          //         Padding(
-                          //           padding: EdgeInsets.only(
-                          //               top: height * 0.01, bottom: height * 0.02),
-                          //           child: Text(
-                          //             "House Constructions Cost Calculator",
-                          //             style: GoogleFonts.roboto(
-                          //                 fontSize:
-                          //                     MediaQuery.of(context).size.height * 0.019,
-                          //                 //  fontWeight: FontWeight.bold,
-                          //                 color: mycolor['secondaryColor']),
-                          //           ),
-                          //         ),
-                          //       ],
-                          //     ),
-                          //   ),
-                          // )
-                        ],
-                      ),
-                    ),
+                        ]),
                   ),
-                )
-              : CostCalculator(),
-        );
-      },
-    );
+                  body: bno.bottomNo == 0
+                      ? SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: SafeArea(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                  left: width * 0.04, right: width * 0.02),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(top: height * 0.04),
+                                        child: CategoryCard(
+                                          height: height,
+                                          width: width,
+                                          name: "Cement",
+                                          cp: flSpot
+                                              .elementAt(int.parse(
+                                                  DateFormat('D')
+                                                      .format(DateTime.now())))
+                                              .y
+                                              .round()
+                                              .toString(),
+                                          isProfit: isProfit,
+                                          percent: "$dayProfit ($percent %)",
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            top: height * 0.04,
+                                            left: width * 0.06),
+                                        child: CategoryCard(
+                                          height: height,
+                                          width: width,
+                                          name: "TMT Steel",
+                                          cp: "480",
+                                          isProfit: true,
+                                          percent: "+30 (0.40 %)",
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            top: height * 0.026),
+                                        child: CategoryCard(
+                                          height: height,
+                                          width: width,
+                                          name: "Granules",
+                                          cp: "380",
+                                          isProfit: false,
+                                          percent: "-18 (0.20 %)",
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            top: height * 0.026,
+                                            left: width * 0.06),
+                                        child: CategoryCard(
+                                          height: height,
+                                          width: width,
+                                          name: "Bricks",
+                                          cp: "220",
+                                          isProfit: true,
+                                          percent: "+12 (0.16 %)",
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  // SizedBox(
+                                  //   height: height * 0.05,
+                                  // ),
+                                  // SingleChildScrollView(
+                                  //   scrollDirection: Axis.horizontal,
+                                  //   child: Row(
+                                  //     children: [
+                                  //       InkWell(
+                                  //         onTap: () {
+                                  //           setState(() {
+                                  //             _index = 0;
+                                  //           });
+                                  //         },
+                                  //         child: CategoryType(
+                                  //           height: height,
+                                  //           width: width,
+                                  //           name: "Cement",
+                                  //           number: 0,
+                                  //         ),
+                                  //       ),
+                                  //       InkWell(
+                                  //         onTap: () {
+                                  //           setState(() {
+                                  //             _index = 1;
+                                  //           });
+                                  //         },
+                                  //         child: CategoryType(
+                                  //           height: height,
+                                  //           width: width,
+                                  //           name: "TMT Steel",
+                                  //           number: 1,
+                                  //         ),
+                                  //       ),
+                                  //       InkWell(
+                                  //         onTap: () {
+                                  //           setState(() {
+                                  //             _index = 2;
+                                  //           });
+                                  //         },
+                                  //         child: CategoryType(
+                                  //           height: height,
+                                  //           width: width,
+                                  //           name: "Granules",
+                                  //           number: 2,
+                                  //         ),
+                                  //       ),
+                                  //       InkWell(
+                                  //         onTap: () {
+                                  //           setState(() {
+                                  //             _index = 3;
+                                  //           });
+                                  //         },
+                                  //         child: CategoryType(
+                                  //           height: height,
+                                  //           width: width,
+                                  //           name: "Bricks",
+                                  //           number: 3,
+                                  //         ),
+                                  //       ),
+                                  //     ],
+                                  //   ),
+                                  // ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(top: height * 0.044),
+                                    child: Text(
+                                      "Top Companies",
+                                      style: GoogleFonts.roboto(
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.02,
+                                          //  fontWeight: FontWeight.bold,
+                                          color: mycolor['secondaryColor']),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: height * 0.05,
+                                  ),
+                                  _index == 0
+                                      ? CementCompany(
+                                          height: height, width: width)
+                                      : _index == 1
+                                          ? TMTCompany(
+                                              height: height, width: width)
+                                          : BrickCompany(
+                                              height: height, width: width),
+                                  SizedBox(
+                                    height: height * 0.045,
+                                  ),
+                                  // Padding(
+                                  //   padding: EdgeInsets.only(top: height * 0.02),
+                                  //   child: Text(
+                                  //     "Tools",
+                                  //     style: GoogleFonts.roboto(
+                                  //         fontSize: MediaQuery.of(context).size.height * 0.019,
+                                  //         //  fontWeight: FontWeight.bold,
+                                  //         color: mycolor['secondaryColor']),
+                                  //   ),
+                                  // ),
+                                  // Padding(
+                                  //   padding: EdgeInsets.only(top: height * 0.02, left: width * 0.0),
+                                  //   child: Container(
+                                  //     decoration: BoxDecoration(
+                                  //         color: Color(0xffF8F8F8),
+                                  //         border: Border.all(color: Color(0xffE9E9EB), width: 1),
+                                  //         borderRadius: BorderRadius.all(Radius.circular(10))),
+                                  //     child: Column(
+                                  //       children: [
+                                  //         Padding(
+                                  //           padding: EdgeInsets.only(
+                                  //               top: height * 0.025,
+                                  //               right: width * 0.4,
+                                  //               left: width * 0.4),
+                                  //           child: Icon(
+                                  //             Icons.house,
+                                  //             size: height * 0.04,
+                                  //             color: Color(0xff00B499),
+                                  //           ),
+                                  //         ),
+                                  //         Padding(
+                                  //           padding: EdgeInsets.only(
+                                  //               top: height * 0.01, bottom: height * 0.02),
+                                  //           child: Text(
+                                  //             "House Constructions Cost Calculator",
+                                  //             style: GoogleFonts.roboto(
+                                  //                 fontSize:
+                                  //                     MediaQuery.of(context).size.height * 0.019,
+                                  //                 //  fontWeight: FontWeight.bold,
+                                  //                 color: mycolor['secondaryColor']),
+                                  //           ),
+                                  //         ),
+                                  //       ],
+                                  //     ),
+                                  //   ),
+                                  // )
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      : CostCalculator(),
+                );
+              },
+            );
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(
+                child: SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: CircularProgressIndicator(
+                    color: Color(0xff00B499),
+                  ),
+                ),
+              ),
+            );
+          }
+          return Container();
+        });
   }
 }
 

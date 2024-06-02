@@ -1,0 +1,20 @@
+Follow the below mentioned steps to successfully execute the flutter application :
+
+1) Open the Command Palette.
+
+2) Go to View > Command Palette or press + Shift + P.
+
+3) Type flutter
+
+4) Select the Flutter: Select Device.
+
+5) If no devices are running, this command prompts you to enable a device.
+
+6) Select a target device from Select Device prompt.
+
+7) After you select a target, start the app. Go to Run > Start Debugging or press F5.
+
+8) Wait for the app to launch.
+
+
+Please Refer the following website for detailed requirement information - https://docs.flutter.dev/get-started/test-drive
